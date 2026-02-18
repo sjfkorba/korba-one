@@ -51,7 +51,7 @@ export default function GlobalSearch() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Plumber, Shop, or Mandi Bhav..."
-        className="w-full h-24 pl-20 pr-32 rounded-[40px] bg-white shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)] font-bold text-2xl outline-none focus:ring-[15px] ring-orange-600/10 transition-all text-slate-900 border border-slate-100"
+        className="w-full h-24 pl-20 pr-32 rounded-[40px] bg-white shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)] font-bold text-2xl outline-none focus:ring-15 ring-orange-600/10 transition-all text-slate-900 border border-slate-100"
       />
 
       <button 

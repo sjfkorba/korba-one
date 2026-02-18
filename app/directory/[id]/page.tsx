@@ -1,107 +1,156 @@
 import { Metadata } from 'next';
 import { db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import { Phone, MapPin, ShieldCheck, MessageCircle, ArrowLeft, Share2, Clock, Star, Zap } from 'lucide-react';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { 
+  Phone, MapPin, ShieldCheck, MessageCircle, ArrowLeft, 
+  Share2, Star, Zap, Globe, Clock, Eye, ChevronRight, 
+  ArrowRight, Calendar
+} from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface Props {
-  params: Promise<{ id: string }>; // UPDATED: Params is now a Promise
+  params: Promise<{ user: string; slug: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params; // Await params first
-  const docSnap = await getDoc(doc(db, "vendors", id));
-  
-  if (!docSnap.exists()) return { title: "Not Found | Korba One" };
-  const vendor = docSnap.data();
-
-  return {
-    title: `${vendor.shopName} | Verified in Korba`,
-    description: `Contact ${vendor.shopName} for ${vendor.category} services.`,
-  };
+async function getAdData(user: string, slug: string) {
+  const q = query(
+    collection(db, "listings"),
+    where("ownerUid", "==", user),
+    where("slug", "==", slug),
+    limit(1)
+  );
+  const querySnapshot = await getDocs(q);
+  if (querySnapshot.empty) return null;
+  return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() } as any;
 }
 
-export default async function VendorProfile({ params }: Props) {
-  const { id } = await params; // THE FIX: Await the dynamic ID
-  const docSnap = await getDoc(doc(db, "vendors", id));
-  
-  if (!docSnap.exists()) notFound();
-  const vendor = docSnap.data();
+export default async function AdDetailPage({ params }: Props) {
+  const { user, slug } = await params;
+  const ad = await getAdData(user, slug);
+  if (!ad) notFound();
+
+  const displayPrice = ad.price ? `₹${Number(ad.price).toLocaleString('en-IN')}` : "Contact for Price";
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC]">
-      {/* HEADER SECTION */}
-      <section className="bg-slate-950 pt-20 pb-48 px-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-600/20 blur-[120px] rounded-full" />
-        <div className="max-w-6xl mx-auto relative z-10">
-          <Link href="/directory" className="inline-flex items-center gap-2 text-white/30 font-black uppercase text-[10px] tracking-widest mb-10 hover:text-orange-500 transition-all">
-            <ArrowLeft size={14} /> Back to Directory
-          </Link>
+    <main className="min-h-screen bg-[#F2F4F5] pb-20 font-sans">
+      {/* 🧭 NAVIGATION BREADCRUMBS (Small & Visible) */}
+      <nav className="bg-white py-3 px-6 border-b border-slate-200">
+        <div className="max-w-6xl mx-auto flex items-center gap-2 text-[10px] font-bold uppercase tracking-tight text-slate-400">
+          <Link href="/" className="hover:text-orange-600 transition-colors">Home</Link>
+          <ChevronRight size={10} />
+          <Link href="/directory" className="hover:text-orange-600 transition-colors">Directory</Link>
+          <ChevronRight size={10} />
+          <span className="text-slate-900 truncate max-w-[150px]">{ad.title}</span>
+        </div>
+      </nav>
 
-          <div className="flex flex-col md:flex-row gap-10 items-center text-center md:text-left">
-            <div className="w-40 h-40 bg-white rounded-[45px] p-1 shadow-2xl border-4 border-white/10 overflow-hidden">
-              <img src={vendor.imageUrl || 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=400'} className="w-full h-full object-cover rounded-[40px]" alt="" />
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 md:p-8">
+        
+        {/* 🖼️ LEFT CONTENT (8 Columns) */}
+        <div className="lg:col-span-8 space-y-4">
+          
+          {/* Main Image Gallery Frame */}
+          <div className="bg-black rounded-xl overflow-hidden shadow-sm aspect-[16/9] flex items-center justify-center relative group">
+            {ad.imageUrl ? (
+              <img src={ad.imageUrl} className="w-full h-full object-contain" alt="" />
+            ) : (
+              <div className="flex flex-col items-center opacity-30 text-white">
+                <Zap size={48} className="mb-2" />
+                <p className="text-[10px] font-black uppercase italic tracking-widest">No Media Available</p>
+              </div>
+            )}
+            <div className="absolute top-4 left-4 bg-orange-600 text-white px-3 py-1 rounded-md font-black text-[9px] uppercase italic shadow-lg">
+              {ad.category}
             </div>
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-3 bg-orange-600/20 text-orange-500 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-orange-600/20">
-                <Zap size={12} fill="currentColor" /> {vendor.category}
-              </div>
-              <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-none">{vendor.shopName}</h1>
-              <div className="flex items-center justify-center md:justify-start gap-4 text-slate-400 font-bold">
-                 <div className="flex items-center gap-1 text-emerald-400"><ShieldCheck size={18}/> <span className="text-[11px] uppercase tracking-widest">Verified Expert</span></div>
-                 <div className="w-1 h-1 bg-slate-700 rounded-full" />
-                 <div className="flex items-center gap-1 text-orange-400"><Star size={18} fill="currentColor"/> <span className="text-[11px] uppercase tracking-widest">4.9 Rating</span></div>
-              </div>
+          </div>
+
+          {/* Description Block (Clean Typography) */}
+          <div className="bg-white p-6 md:p-10 rounded-xl border border-slate-200 shadow-sm">
+            <h3 className="text-lg font-black text-slate-900 uppercase italic mb-6 border-b-2 border-slate-100 pb-3">
+              Description
+            </h3>
+            <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap font-medium">
+              {ad.description}
+            </p>
+            
+            {/* Ad Stats Footer */}
+            <div className="mt-10 pt-6 border-t border-slate-50 flex items-center justify-between text-[10px] font-black uppercase text-slate-400">
+               <div className="flex items-center gap-4">
+                 <span className="flex items-center gap-1.5"><Calendar size={12}/> Posted: Feb 17</span>
+                 <span className="flex items-center gap-1.5"><Eye size={12}/> Views: {ad.views || 0}</span>
+               </div>
+               <span className="text-slate-300">AD ID: {ad.id.substring(0,8).toUpperCase()}</span>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* CONTENT GRID */}
-      <section className="max-w-6xl mx-auto -mt-24 px-6 relative z-20 pb-32">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <div className="lg:col-span-2 space-y-8">
-            {/* Services Card */}
-            <div className="bg-white p-12 rounded-[60px] shadow-xl border border-slate-100">
-               <h3 className="text-2xl font-black text-slate-900 uppercase italic mb-8">Specialized In</h3>
-               <div className="flex flex-wrap gap-3">
-                 {Array.isArray(vendor.keywords) ? vendor.keywords.map((k: string, i: number) => (
-                   <span key={i} className="px-6 py-3 bg-slate-50 text-slate-500 rounded-2xl font-black text-[10px] uppercase border border-slate-100 shadow-sm">#{k}</span>
-                 )) : <span className="text-slate-400 italic">No keywords listed</span>}
-               </div>
+        {/* 💰 RIGHT SIDEBAR (4 Columns) */}
+        <div className="lg:col-span-4 space-y-4">
+          
+          {/* Price & Title Info Card */}
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <div className="space-y-1">
+               <h2 className="text-2xl font-black text-slate-950 leading-tight tracking-tighter uppercase italic">
+                 {displayPrice}
+               </h2>
+               <h1 className="text-sm font-bold text-slate-500 leading-snug">
+                 {ad.title}
+               </h1>
             </div>
-
-            {/* Location Card */}
-            <div className="bg-slate-950 text-white p-12 rounded-[60px] shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:rotate-12 transition-transform duration-700"><MapPin size={120} /></div>
-               <h3 className="text-2xl font-black italic uppercase mb-4">Location.</h3>
-               <p className="text-slate-400 text-xl font-medium max-w-sm leading-relaxed">{vendor.address || "Korba, Chhattisgarh"}</p>
+            
+            <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+              <div className="flex items-center gap-1.5 text-slate-500 font-bold text-[11px]">
+                <MapPin size={14} className="text-orange-600" /> {ad.address}
+              </div>
+              <span className="text-[10px] font-black text-slate-300 uppercase">Today</span>
             </div>
           </div>
 
-          {/* Sticky Sidebar */}
-          <div className="space-y-6">
-            <div className="bg-white p-10 rounded-[50px] shadow-2xl border border-slate-50 sticky top-10">
-               <div className="flex items-center gap-3 text-emerald-500 mb-8">
-                  <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse" />
-                  <span className="text-[11px] font-black uppercase tracking-widest">Available for service</span>
-               </div>
-               <div className="space-y-4">
-                  <a href={`tel:${vendor.phone}`} className="w-full bg-slate-950 text-white py-6 rounded-3xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-orange-600 transition-all shadow-xl active:scale-95">
-                    <Phone size={18} /> Call Now
-                  </a>
-                  <a href={`https://wa.me/91${vendor.phone}`} className="w-full bg-emerald-600 text-white py-6 rounded-3xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-700 transition-all shadow-xl">
-                    <MessageCircle size={18} /> WhatsApp
-                  </a>
-               </div>
-               <button className="w-full mt-10 text-slate-300 font-black text-[9px] uppercase tracking-[0.3em] flex items-center justify-center gap-2 hover:text-slate-900 transition-colors">
-                 <Share2 size={14} /> Share Profile
-               </button>
+          {/* Seller Profile Card (Compact) */}
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Advertiser Detail</p>
+            <Link href={`/p/${ad.ownerUid}`} className="flex items-center justify-between group">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-slate-950 rounded-xl flex items-center justify-center text-white font-black text-xl italic uppercase shadow-inner">
+                  {ad.ownerEmail?.charAt(0)}
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-slate-900 group-hover:text-orange-600 transition-colors uppercase italic">{ad.ownerEmail?.split('@')[0]}</h4>
+                  <p className="text-[9px] font-bold text-emerald-500 flex items-center gap-1 uppercase tracking-widest">
+                    <ShieldCheck size={10} /> Verified Identity
+                  </p>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-slate-300 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            
+            {/* Action Buttons */}
+            <div className="space-y-2 pt-2">
+              <a href={`tel:${ad.phone}`} className="w-full bg-slate-950 text-white py-4 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-md active:scale-95">
+                <Phone size={14} /> Call Now
+              </a>
+              <a href={`https://wa.me/91${ad.phone}`} className="w-full bg-emerald-50 text-emerald-600 py-4 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100">
+                <MessageCircle size={14} /> WhatsApp
+              </a>
             </div>
+          </div>
+
+          {/* Location Safety Tip Card */}
+          <div className="bg-orange-50 p-6 rounded-xl border border-orange-100">
+            <h5 className="text-[10px] font-black text-orange-600 uppercase tracking-widest flex items-center gap-2 mb-2">
+              <Star size={12} fill="currentColor"/> Safety Tips
+            </h5>
+            <p className="text-[10px] font-medium text-orange-800 leading-relaxed">
+              Never pay in advance. Verify business identity on <b>Korba One</b> before any transaction. 
+            </p>
           </div>
         </div>
-      </section>
+
+      </div>
     </main>
   );
 }

@@ -1,4 +1,4 @@
-export const SEO_LIBRARY = {
+export const MASTER_SEO_LIBRARY = {
   "Plumber": [
     "Best Plumber in Korba", "Emergency Plumbing 24/7", "Water Tank Cleaning Korba",
     "Bathroom Pipe Leakage Repair", "Toilet Seat Installation", "Kitchen Sink Repair",

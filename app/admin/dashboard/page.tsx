@@ -78,12 +78,12 @@ export default function AdminDashboard() {
   return (
     <main className="min-h-screen bg-[#F8FAFC] flex font-sans">
       {/* SIDEBAR NAVIGATION */}
-      <aside className="w-80 bg-slate-950 text-white p-10 flex flex-col hidden lg:flex sticky top-0 h-screen shadow-2xl">
+      <aside className="w-80 bg-slate-950 text-white p-10 flex-col hidden lg:flex sticky top-0 h-screen shadow-2xl">
         <div className="mb-16">
            <h2 className="text-3xl font-black tracking-tighter italic text-orange-500">K1 PANEL</h2>
            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] mt-2 italic">Admin: Shatrughan Sharma</p>
         </div>
-        <nav className="flex-grow space-y-3">
+        <nav className="grow space-y-3">
           <NavItem icon={<LayoutDashboard />} label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
           <NavItem icon={<Store />} label="Vendors" active={activeTab === "vendors"} onClick={() => setActiveTab("vendors")} />
           <NavItem icon={<TrendingUp />} label="Intelligence" active={activeTab === "intelligence"} onClick={() => setActiveTab("intelligence")} />
@@ -96,10 +96,10 @@ export default function AdminDashboard() {
       </aside>
 
       {/* MAIN CONTENT */}
-      <section className="flex-grow p-8 md:p-16 overflow-y-auto">
+      <section className="grow p-8 md:p-16 overflow-y-auto">
         <header className="flex justify-between items-center mb-16">
            <h1 className="text-6xl font-black text-slate-900 tracking-tighter uppercase italic">{activeTab}</h1>
-           <div className="bg-white p-4 rounded-[32px] shadow-sm border border-slate-100 flex items-center gap-4 px-6">
+           <div className="bg-white p-4 rounded-4xl shadow-sm border border-slate-100 flex items-center gap-4 px-6">
               <span className="text-[10px] font-black uppercase text-slate-400 italic">SJF Korba</span>
               <div className="w-12 h-12 bg-orange-600 rounded-2xl flex items-center justify-center text-white font-black shadow-lg shadow-orange-600/30 text-xl italic">S</div>
            </div>
@@ -225,7 +225,7 @@ function AdsManager({ ads }: { ads: any[] }) {
               </button>
               <div className="h-72 w-full bg-slate-100 overflow-hidden relative">
                  <img src={ad.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-60" />
                  <div className="absolute bottom-10 left-10">
                     <span className="bg-emerald-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg italic">Active</span>
                  </div>
@@ -298,7 +298,7 @@ function VendorsTab({ vendors, searchTerm, setSearchTerm }: any) {
         <button onClick={() => setShowForm(!showForm)} className="bg-orange-600 text-white px-10 py-6 rounded-[30px] font-black text-xs uppercase shadow-xl flex items-center gap-3">
            {showForm ? <X /> : <Plus />} {showForm ? "Cancel" : "Add Vendor"}
         </button>
-        <div className="relative flex-grow max-w-2xl">
+        <div className="relative grow max-w-2xl">
            <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-300" size={24} />
            <input type="text" placeholder="Search Shop/Category..." className="w-full h-20 bg-white border border-slate-100 rounded-[35px] pl-20 pr-10 font-bold outline-none" onChange={(e) => setSearchTerm(e.target.value)} />
         </div>
