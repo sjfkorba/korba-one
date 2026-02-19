@@ -3,25 +3,43 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://korbaone.com';
+  const baseUrl = "https://korba-one.vercel.app";
 
-  // 1. STATIC ROUTES (Jo hamesha rehte hain)
+  /* =========================
+     1. STATIC CORE PAGES
+  ========================= */
+
   const staticRoutes = [
-    '',
-    '/directory',
-    '/mandi',
-    '/emergency',
-    '/register',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
+    { route: '', priority: 1 },
+    { route: '/directory', priority: 0.9 },
+    { route: '/mandi', priority: 0.9 },
+    { route: '/emergency', priority: 0.9 },
+    { route: '/register', priority: 0.8 },
+
+    // Additional Pages
+    { route: '/about', priority: 0.7 },
+    { route: '/contact', priority: 0.7 },
+
+    // Legal / Policy Pages
+    { route: '/privacy-policy', priority: 0.5 },
+    { route: '/terms-and-conditions', priority: 0.5 },
+    { route: '/listing-policy', priority: 0.5 },
+    { route: '/advertisement-policy', priority: 0.5 },
+    { route: '/refund-policy', priority: 0.5 },
+
+  ].map((item) => ({
+    url: `${baseUrl}${item.route}`,
     lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: 1,
+    changeFrequency: 'weekly' as const,
+    priority: item.priority,
   }));
 
-  // 2. DYNAMIC VENDOR ROUTES (Har shop ke liye unique URL)
-  let vendorRoutes: any[] = [];
-  
+  /* =========================
+     2. DYNAMIC VERIFIED VENDORS
+  ========================= */
+
+  let vendorRoutes: MetadataRoute.Sitemap = [];
+
   try {
     const vendorsSnap = await getDocs(
       query(collection(db, "vendors"), where("isVerified", "==", true))
@@ -33,6 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     }));
+
   } catch (error) {
     console.error("Sitemap error:", error);
   }
