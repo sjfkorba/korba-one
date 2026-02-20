@@ -3,25 +3,25 @@
 @tailwind utilities;
 
 /* =========================
-   ROOT THEME VARIABLES
+   ROOT BRAND VARIABLES
 ========================= */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0f172a; /* Deep slate */
+  --foreground: #f8fafc;
+  --brand: #ea580c; /* Orange */
+  --brand-soft: rgba(234, 88, 12, 0.15);
 }
 
 /* =========================
-   BASE STYLES
+   GLOBAL RESET
 ========================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 html {
   scroll-behavior: smooth;
@@ -30,43 +30,150 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  min-height: 100vh;
-}
-
-/* Remove default margin */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Better image rendering */
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+  font-family: var(--font-inter), ui-sans-serif, system-ui;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* =========================
-   CUSTOM ANIMATIONS
+   PREMIUM SCROLLBAR
 ========================= */
 
-@keyframes marquee {
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to bottom,
+    rgba(234, 88, 12, 0.8),
+    rgba(234, 88, 12, 0.4)
+  );
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand);
+}
+
+/* =========================
+   GLASS EFFECT UTILITY
+========================= */
+
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* =========================
+   PREMIUM BUTTON BASE
+========================= */
+
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    #ea580c,
+    #f97316
+  );
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(234, 88, 12, 0.4);
+}
+
+/* =========================
+   CARD BASE
+========================= */
+
+.card-premium {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  border-radius: 24px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.card-premium:hover {
+  border-color: rgba(234, 88, 12, 0.4);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  transform: translateY(-4px);
+}
+
+/* =========================
+   INPUT FIELD BASE
+========================= */
+
+.input-premium {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  outline: none;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.input-premium:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+/* =========================
+   SECTION SPACING
+========================= */
+
+.section-padding {
+  padding: 4rem 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding: 6rem 4rem;
+  }
+}
+
+/* =========================
+   PREMIUM FADE ANIMATION
+========================= */
+
+@keyframes fadeUp {
   0% {
-    transform: translateX(0);
+    opacity: 0;
+    transform: translateY(30px);
   }
   100% {
-    transform: translateX(-50%);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 40s linear infinite;
+.animate-fadeUp {
+  animation: fadeUp 0.6s ease forwards;
 }
 
-.animate-marquee:hover {
-  animation-play-state: paused;
+/* =========================
+   ORANGE GLOW UTILITY
+========================= */
+
+.glow-orange {
+  box-shadow: 0 0 60px rgba(234, 88, 12, 0.4);
+}
+
+
+.input {
+  @apply w-full p-3 rounded-xl bg-black/40 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-orange-500;
 }

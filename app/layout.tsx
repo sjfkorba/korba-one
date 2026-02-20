@@ -1,70 +1,68 @@
-import { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
-import { SpeedInsights } from "@vercel/speed-insights/next"; // Performance monitoring
-import './globals.css';
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import "@/app/globals.css";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import MobileNav from "@/components/layout/MobileNav";
 
-// 1. FONT OPTIMIZATION
-const inter = Inter({ 
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
 });
 
-// 2. GLOBAL SEO METADATA (Brand Strategy)
 export const metadata: Metadata = {
-  metadataBase: new URL('https://korbaone.com'),
+  metadataBase: new URL("https://korbaone.com"),
   title: {
-    default: "Korba One | Chhattisgarh's Digital Super App",
-    template: "%s | Korba One"
+    default: "Korba One | The Digital Super App of Korba",
+    template: "%s | Korba One",
   },
-  description: "Korba ki har zaroorat—Verified Directory, Emergency Help, aur Daily Mandi Bhav. Chhattisgarh ka sabse bharosemand digital ecosystem.",
-  keywords: ["Korba One", "Korba Directory", "Mandi Bhav Chhattisgarh", "Emergency Services Korba", "Shatrughan Sharma"],
-  authors: [{ name: "Shatrughan Sharma" }],
-  creator: "Shatrughan Sharma",
-  publisher: "Korba One Media",
+  description:
+    "Korba One is Korba’s premium digital marketplace connecting shops, services, jobs, buy/sell listings and emergency contacts in one powerful platform.",
+  keywords: [
+    "Korba shops",
+    "Korba jobs",
+    "Korba buy sell",
+    "Korba services",
+    "Korba business directory",
+    "Korba digital platform",
+  ],
   openGraph: {
-    type: "website",
-    locale: "hi_IN",
+    title: "Korba One – Korba’s Digital Super App",
+    description:
+      "Discover shops, services, jobs, buy & sell listings and more in Korba’s most powerful digital ecosystem.",
     url: "https://korbaone.com",
     siteName: "Korba One",
-    title: "Korba One - Sheher ki Har Zaroorat, Ek Hi Jagah",
-    description: "Verified businesses aur live market rates ke liye Chhattisgarh ka digital powerhouse.",
     images: [
       {
-        url: "/og-image.jpg", // Make sure this exists in your public folder
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Korba One Branding",
       },
     ],
+    locale: "en_IN",
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Korba One | Digital Chhattisgarh",
-    description: "Business directory and live mandi rates.",
+    title: "Korba One – Digital Korba",
+    description:
+      "Korba’s most powerful local digital marketplace.",
     images: ["/og-image.jpg"],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
 };
 
-// 3. VIEWPORT CONFIGURATION (Mobile-First)
 export const viewport: Viewport = {
-  themeColor: '#ea580c', // Orange-600 for mobile browsers
-  width: 'device-width',
+  themeColor: "#0f172a",
+  width: "device-width",
   initialScale: 1,
-  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -73,24 +71,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="hi" className="scroll-smooth" data-scroll-behavior="smooth">
-      <body className={`${inter.variable} ${inter.className} bg-white antialiased flex flex-col min-h-screen`}>
-        {/* 1. Global Navigation */}
-        <Navigation />
+    <html
+      lang="en"
+      className={`${inter.variable} scroll-smooth`}
+      suppressHydrationWarning
+    >
+      <body className="bg-slate-950 text-white antialiased min-h-screen flex flex-col">
+        
+        {/* Global Premium Background Gradient */}
+        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-950 via-slate-900 to-black" />
+        
+        {/* Top Glow Accent */}
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-orange-600/20 blur-[120px] rounded-full -z-10" />
 
-        {/* 2. Main Content Area 
-            - pt-0 md:pt-20: Desktop par top-nav ke liye padding
-            - pb-24 md:pb-0: Mobile par bottom-nav ke liye extra space
-        */}
-        <main className="flex-grow pt-0 md:pt-20 pb-24 md:pb-0 relative overflow-x-hidden">
+        {/* Navigation */}
+        <Navbar />
+
+        {/* Main Content */}
+        <main className="flex-grow relative overflow-x-hidden">
           {children}
         </main>
+        <MobileNav />
 
-        {/* 3. Performance Insights */}
-        <SpeedInsights />
 
-        {/* 4. Global Premium Footer */}
+        {/* Footer */}
         <Footer />
+
+        {/* Vercel Performance */}
+        <SpeedInsights />
       </body>
     </html>
   );
