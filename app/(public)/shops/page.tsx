@@ -1,54 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ShopCard from "@/components/cards/ShopCard";
-
-const demoShops = [
-  {
-    name: "Balaji Electronics",
-    category: "Electronics",
-    location: "Transport Nagar, Korba",
-    slug: "balaji-electronics",
-  },
-  {
-    name: "Shree Medical Store",
-    category: "Pharmacy",
-    location: "Power House Road, Korba",
-    slug: "shree-medical",
-  },
-  {
-    name: "Modern Coaching Center",
-    category: "Education",
-    location: "Niharika, Korba",
-    slug: "modern-coaching",
-  },
-  {
-    name: "RK Furniture House",
-    category: "Furniture",
-    location: "Balco Nagar, Korba",
-    slug: "rk-furniture",
-  },
-  {
-    name: "City Fast Food",
-    category: "Restaurant",
-    location: "Kosabadi, Korba",
-    slug: "city-fast-food",
-  },
-  {
-    name: "Korba Fitness Gym",
-    category: "Fitness",
-    location: "Dipka Road, Korba",
-    slug: "korba-fitness",
-  },
-];
+import { getLatestShops, PublicShop } from "@/lib/dashboard";
 
 export default function ShopsPage() {
+  const [shops, setShops] = useState<PublicShop[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
+  const [loading, setLoading] = useState(true);
 
-  const categories = ["All", "Electronics", "Pharmacy", "Education", "Furniture", "Restaurant", "Fitness"];
+  const categories = [
+    "All",
+    "Electronics",
+    "Pharmacy",
+    "Education",
+    "Furniture",
+    "Restaurant",
+    "Fitness",
+  ];
 
-  const filteredShops = demoShops.filter((shop) => {
+  // 🔥 Fetch from Firebase
+  useEffect(() => {
+    async function fetchShops() {
+      try {
+        const data = await getLatestShops();
+        setShops(data);
+      } catch (error) {
+        console.error("Error fetching shops:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchShops();
+  }, []);
+
+  // 🔎 Filter Logic
+  const filteredShops = shops.filter((shop) => {
     const matchesSearch =
       shop.name.toLowerCase().includes(search.toLowerCase());
 
@@ -98,13 +87,20 @@ export default function ShopsPage() {
           </select>
         </div>
 
-        {/* Grid */}
-        {filteredShops.length > 0 ? (
+        {/* Loading */}
+        {loading ? (
+          <div className="text-center py-20 text-white/60">
+            Loading shops...
+          </div>
+        ) : filteredShops.length > 0 ? (
+
+          /* Grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredShops.map((shop) => (
-              <ShopCard key={shop.slug} {...shop} />
+              <ShopCard key={shop.id} {...shop} />
             ))}
           </div>
+
         ) : (
           <div className="text-center text-white/50 py-20">
             No shops found.

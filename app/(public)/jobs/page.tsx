@@ -1,51 +1,40 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import JobCard from "@/components/cards/JobCard";
-
-const demoJobs = [
-  {
-    title: "Sales Executive",
-    company: "Balaji Electronics",
-    location: "Transport Nagar, Korba",
-    type: "Full Time",
-    slug: "sales-executive-balaji",
-  },
-  {
-    title: "Pharmacist",
-    company: "Shree Medical",
-    location: "Power House Road, Korba",
-    type: "Full Time",
-    slug: "pharmacist-shree",
-  },
-  {
-    title: "Maths Teacher",
-    company: "Modern Coaching",
-    location: "Niharika, Korba",
-    type: "Part Time",
-    slug: "maths-teacher-modern",
-  },
-  {
-    title: "Delivery Partner",
-    company: "City Fast Food",
-    location: "Kosabadi, Korba",
-    type: "Contract",
-    slug: "delivery-partner-city",
-  },
-];
+import { getLatestJobs, PublicJob } from "@/lib/dashboard";
 
 export default function JobsPage() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("query") || "";
 
+  const [jobs, setJobs] = useState<PublicJob[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(initialQuery);
   const [typeFilter, setTypeFilter] = useState("All");
 
   const jobTypes = ["All", "Full Time", "Part Time", "Contract"];
 
+  // 🔥 Fetch Jobs from Firebase
+  useEffect(() => {
+    async function fetchJobs() {
+      try {
+        const data = await getLatestJobs();
+        setJobs(data);
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchJobs();
+  }, []);
+
+  // 🔎 Filtering Logic
   const filteredJobs = useMemo(() => {
-    return demoJobs.filter((job) => {
+    return jobs.filter((job) => {
       const matchesSearch =
         job.title.toLowerCase().includes(search.toLowerCase()) ||
         job.company.toLowerCase().includes(search.toLowerCase());
@@ -55,7 +44,7 @@ export default function JobsPage() {
 
       return matchesSearch && matchesType;
     });
-  }, [search, typeFilter]);
+  }, [jobs, search, typeFilter]);
 
   return (
     <section className="section-padding">
@@ -73,7 +62,6 @@ export default function JobsPage() {
 
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-4 mb-10">
-          {/* Search */}
           <input
             type="text"
             placeholder="Search job title or company..."
@@ -82,7 +70,6 @@ export default function JobsPage() {
             className="input-premium flex-1"
           />
 
-          {/* Type Filter */}
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
@@ -96,13 +83,19 @@ export default function JobsPage() {
           </select>
         </div>
 
-        {/* Grid */}
-        {filteredJobs.length > 0 ? (
+        {/* Loading State */}
+        {loading ? (
+          <div className="text-center py-20 text-white/60">
+            Loading jobs...
+          </div>
+        ) : filteredJobs.length > 0 ? (
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredJobs.map((job) => (
-              <JobCard key={job.slug} {...job} />
+              <JobCard key={job.id} {...job} />
             ))}
           </div>
+
         ) : (
           <div className="text-center text-white/50 py-20">
             No jobs found.

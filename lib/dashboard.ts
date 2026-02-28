@@ -466,3 +466,35 @@ export async function getLatestShops(): Promise<PublicShop[]> {
     slug: docSnap.data().slug || docSnap.id,
   }));
 }
+
+export async function getAnalyticsData(
+  userId: string
+): Promise<AnalyticsPoint[]> {
+  const q = query(
+    collection(db, "profileViews"),
+    where("sellerId", "==", userId),
+    orderBy("createdAt", "asc")
+  )
+
+  const snapshot = await getDocs(q)
+
+  const data: AnalyticsPoint[] = []
+
+  snapshot.forEach((docSnap) => {
+    const docData = docSnap.data()
+
+    if (!docData.createdAt?.toDate) return
+
+    const date = docData.createdAt
+      .toDate()
+      .toISOString()
+      .split("T")[0]
+
+    data.push({
+      date,
+      views: docData.views || 0,
+    })
+  })
+
+  return data
+}
